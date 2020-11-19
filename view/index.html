@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MVC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>  
+    <script src="resources/index.js" type="text/javascript"></script>
+</head>
+<body onload="traerEquipos()">
+	 <nav >
+    <div class="nav-wrapper teal darken-1">
+      <a href="#" class="brand-logo right">Equipos de futbol</a>
+      <ul id="nav-mobile" class="left hide-on-med-and-down">
+          <li><a onclick="verAgregar()">Agregar Equipo</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="row" >
+      <div class="col s12"><h2>Equipos de futbol</h2></div>
+      <div class="col s6 row">
+      <div class="col s1"></div>
+      	<div class="col s8" id="registrares">
+      		<h3>Registra un equipo</h3>
+		    <label for="nombre">Nombre </label>   
+		    <input type="text"  id="nombre" placeholder="Nombre">
+		    <label for="lider">Lider</label>   
+		    <input type="text"  id="lider" placeholder="Lider">	
+		    <input type="hidden"  >	
+
+		    <a class="waves-effect waves-light btn teal darken-1" onclick="agregar()">Agregar</a>	      	
+      	</div>
+      	<div class="col s8" id="modificares">
+      		<h3>Modificar un equipo</h3>
+		    <label for="nombreMod">Nombre </label>   
+		    <input type="text"  id="nombreMod" placeholder="Nombre">
+		    <label for="liderMod">Lider</label>   
+		    <input type="text"  id="liderMod" placeholder="Lider">	
+		    <input type="hidden" id="idMod" >	
+		    <a class="waves-effect waves-light btn teal darken-1" onclick="modificar()">Agregar</a>	      	
+      	</div>
+      </div>
+      <div class="col s6 row">
+      <div class="col s1"></div>
+
+      	<div class="col s8">
+      	     
+
+      	<table class="centered responsive-table center-align bordered border-dark md-5" id="tabla">
+            <thead class="  teal darken-4 white-text center-align">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Lider</th>
+                    <th>Modificar</th>
+
+                </tr>
+            </thead>
+            <tbody id="tablaFutbol" class="center-align bordered border-dark">
+ 
+                
+                
+            </tbody>
+        </table>   
+       </div>
+      </div>
+    </div>
+  	
+  	   
+<script src="static/js/index.js"></script>
+
+<script type="text/javascript">
+	function mod(i){
+		 $(registrares).hide();
+    $(modificares).show();
+		$("#nombreMod").val(equipo[i].nombre);
+		$("#liderMod").val(equipo[i].lider);
+		$("#idMod").val(equipo[i].id);
+	}
+	function modificar(){
+
+   
+     var nombre=$("#nombreMod").val();
+     var lider=$("#liderMod").val();
+     var id=$("#idMod").val();
+    var data = {
+        nombre:nombre,
+        lider: lider,
+        id:id
+    };
+    $.ajax(
+            {
+                type: "POST",
+                url: "/api/equipo/update",
+                data: data,
+                async: true
+            }
+    ).done(
+            function(data)
+            {
+            	if (data.result === 'error') {
+            			alert("Error")
+                 } 
+                 else{
+                alert("Modificado");
+                    traerEquipos();
+                
+            }
+            }
+    );
+}
+</script>
+<script type="text/javascript">
+	function verAgregar(){
+		 $(registrares).show();
+   		 $(modificares).hide();
+	}
+	function agregar(){
+    
+    var nombre=$("#nombre").val();
+    var lider=$("#lider").val();
+    var data = {
+        nombre:nombre,
+        lider: lider
+    };
+    $.ajax(
+            {
+                type: "POST",
+                url: "/api/equipo/create",
+                data: data,
+                async: true
+            }
+    ).done(
+            function(data)
+            {
+            	if (data.result === 'error') {
+            			alert("Error")
+                 } 
+                 else{
+                alert("Agregado");
+                    traerEquipos();
+                   $("#nombre").val('');
+    			   $("#lider").val('');
+                
+            }
+            }
+    );
+}
+</script>
+<script>
+	var equipo=null;
+
+	function traerEquipos(){
+    $(registrares).show();
+    $(modificares).hide();
+
+		
+    $.ajax(
+            {
+                type: "GET",
+                url: "/api/equipo/list",
+            }).done(
+            function (data) {
+                if (data.result === 'error') {
+                          alert("error")
+                     }else{
+                equipo = data;
+                //equipo = data;
+                 var str="";
+                for (var i = 0; i < equipo.length; i++) {                    
+                     var boton='';
+                        boton='<a class="waves-effect waves-light btn teal darken-1" href="#" onclick="mod(' + i + ');">Modificar</a>'
+                    
+                    str += '<tr>' +
+                            '<th>' + equipo[i].nombre +'</th>' +
+                            '<th>' + equipo[i].lider + '</th>' +
+                            '<th>'+ boton+'</th>';
+                }
+                $('#tablaFutbol').html(str);
+            }
+
+} );
+}
+
+	
+</script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+</body>
+</html>
